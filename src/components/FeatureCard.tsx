@@ -54,5 +54,4 @@ const FeatureCard = React.forwardRef<HTMLDivElement, FeatureCardProps>(
   }
 );
 
-FeatureCard.displayName = "FeatureCard";
-export { FeatureCard };
+export default FeatureCard;
