@@ -12,8 +12,8 @@ import React from "react";
 export interface FeatureCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   description: string;
-  ctaText: string;
-  onCtaClick: () => void;
+  buttonText: string;
+  onButtonClick: () => void;
   cardVariant?: "default" | "outline";
 }
 
@@ -23,11 +23,10 @@ const FeatureCard = React.forwardRef<HTMLDivElement, FeatureCardProps>(
       className,
       title,
       description,
-      ctaText,
-      onCtaClick,
+      buttonText,
+      onButtonClick,
       cardVariant = "default",
       children,
-      ...props
     },
     ref
   ) => {
@@ -39,7 +38,6 @@ const FeatureCard = React.forwardRef<HTMLDivElement, FeatureCardProps>(
           cardVariant === "outline" && "border-2 border-primary",
           className
         )}
-        {...props}
       >
         <CardHeader>
           <CardTitle className="text-xl">{title}</CardTitle>
@@ -47,8 +45,8 @@ const FeatureCard = React.forwardRef<HTMLDivElement, FeatureCardProps>(
         </CardHeader>
         <CardContent className="grid gap-4">{children}</CardContent>
         <CardFooter>
-          <Button variant="default" onClick={onCtaClick} className="w-full">
-            {ctaText}
+          <Button variant="default" onClick={onButtonClick} className="w-full">
+            {buttonText}
           </Button>
         </CardFooter>
       </Card>
