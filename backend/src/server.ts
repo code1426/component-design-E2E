@@ -1,4 +1,7 @@
 import express from "express";
+import orderRoutes from "./routes/order";
+import userRoutes from "./routes/user";
+import productRoutes from "./routes/product";
 
 const app = express();
 
@@ -9,19 +12,9 @@ app.get("/", (req, res) => {
   res.send("Hello this root route");
 });
 
-app.get("/order", (req, res) => {
-  res.send("Hello this home route");
-});
-
-app.get("/user", (req, res) => {
-  res.send("Hello this login route");
-});
-
-app.get("/product", (req, res) => {
-  res.send("product route");
-});
-
-// app.use("/api/home", getRoutes());
+app.use("/api/orders", orderRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
