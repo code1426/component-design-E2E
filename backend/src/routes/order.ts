@@ -1,16 +1,25 @@
 import { Router } from "express";
+import { prisma } from "../server";
 
 const router = Router();
 
-router.post("/", (req, res) => {
-  const message = "Order created successfully";
-
-  res.status(200).json({ message });
+// post method -- create an order
+router.post("/", async (req, res) => {
+  const { userId, productId, quantity } = req.body;
+  const order = await prisma.order.create({
+    data: {
+      userId,
+      productId,
+      quantity,
+    },
+  });
+  res.status(200).json(order);
 });
 
-router.get("/", (req, res) => {
-  const message = "This is an order";
-  res.status(200).json({ message });
+// Read orders (GET)
+router.get("/", async (req, res) => {
+  const orders = await prisma.order.findMany();
+  res.status(200).json(orders);
 });
 
 export default router;
