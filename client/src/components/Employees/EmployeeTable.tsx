@@ -22,10 +22,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees }) => {
           {employees.map((employee) => (
             <tr key={employee.id}>
               <td className="py-2 px-4 border-b text-center">{employee.id}</td>
-              <td className="py-2 px-4 border-b  text-center">
+              <td className="py-2 px-4 border-b text-center">
                 {employee.name}
               </td>
-              <td className="py-2 px-4 border-b  text-center">
+              <td className="py-2 px-4 border-b text-center">
                 {employee.role}
               </td>
               <td className="py-2 px-4 border-b text-center">
