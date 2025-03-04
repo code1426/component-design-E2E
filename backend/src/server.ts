@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import orderRoutes from "./routes/order";
 import userRoutes from "./routes/user";
 import productRoutes from "./routes/product";
+import employeeRoutes from "./routes/employee";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
   res.send("Hello this root route");
 });
 
+app.use("/api/employees", employeeRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
