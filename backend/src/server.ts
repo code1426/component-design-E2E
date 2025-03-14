@@ -5,11 +5,12 @@ import orderRoutes from "./routes/order";
 import userRoutes from "./routes/user";
 import productRoutes from "./routes/product";
 import employeeRoutes from "./routes/employee";
+import memberRoutes from "./routes/member";
 
 const app = express();
 const prisma = new PrismaClient();
 
-const PORT = 3000;
+const PORT = 3001;
 app.use(express.json());
 app.use(cors());
 
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/employees", employeeRoutes);
+app.use("/api/members", memberRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);

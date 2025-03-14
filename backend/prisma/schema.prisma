@@ -42,3 +42,13 @@ model Employee {
   role   String
   salary Int
 }
+
+model Member {
+  id                    Int      @id @default(autoincrement())
+  firstName             String
+  lastName              String
+  groupName             String
+  role                  String
+  expectedSalary        Int
+  expectedDateOfDefense DateTime
+}

@@ -9,7 +9,7 @@ const EmployeeFilter = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/employees", {
+        const response = await fetch("http://localhost:3001/api/employees", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
