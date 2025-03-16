@@ -1,15 +1,8 @@
 import React, { useState } from "react";
 import { Member } from "@/types/member.type";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import EditMemberForm from "@/components/Member/EditMemberForm";
+import EditMemberDialog from "@/components/Member/EditMemberDialog";
+import ConfirmDeleteDialog from "@/components/Member/ConfirmDeleteDialog";
+import { User, Users } from "lucide-react";
 
 interface MemberCardProps {
   member: Member;
@@ -23,25 +16,37 @@ const MemberCard: React.FC<MemberCardProps> = ({
   onUpdate,
 }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const handleEdit = (updatedMember: Member) => {
     onUpdate(member.id!.toString(), updatedMember);
     setEditDialogOpen(false);
   };
 
+  const handleDeleteConfirm = () => {
+    onDelete(member.id!.toString());
+    setConfirmDialogOpen(false);
+  };
+
   return (
-    <div className="border rounded p-4 shadow-md">
+    <div className="border bg-gray-900 rounded p-4 shadow-md text-white">
+      <div className="flex justify-between items-center mb-4">
+        <span className="bg-blue-600 px-2 py-1 rounded text-xs font-medium flex items-center gap-x-2">
+          <Users className="h-5 w-5 text-white" />
+          {member.groupName}
+        </span>
+
+        <div className="flex items-center">
+          <User className="h-4 w-4 mr-1" />
+          <span className="text-sm font-medium">{member.role}</span>
+        </div>
+      </div>
+
       <p>
         <strong>First Name:</strong> {member.firstName}
       </p>
       <p>
         <strong>Last Name:</strong> {member.lastName}
-      </p>
-      <p>
-        <strong>Group Name:</strong> {member.groupName}
-      </p>
-      <p>
-        <strong>Role:</strong> {member.role}
       </p>
       <p>
         <strong>Expected Salary:</strong> {member.expectedSalary}
@@ -50,35 +55,20 @@ const MemberCard: React.FC<MemberCardProps> = ({
         <strong>Expected Date of Defense:</strong>{" "}
         {new Date(member.expectedDateOfDefense).toLocaleDateString()}
       </p>
+
       <div className="mt-2 flex space-x-2">
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded">
-              Edit
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-screen-md p-6">
-            <DialogHeader>
-              <DialogTitle>Edit Member</DialogTitle>
-            </DialogHeader>
-            <EditMemberForm
-              initialValues={member}
-              onSubmit={handleEdit}
-              onCancel={() => setEditDialogOpen(false)}
-            />
-            <DialogClose asChild>
-              <button className="mt-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                Close
-              </button>
-            </DialogClose>
-          </DialogContent>
-        </Dialog>
-        <Button
-          onClick={() => onDelete(member.id!.toString())}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded"
-        >
-          Delete
-        </Button>
+        <EditMemberDialog
+          member={member}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSubmit={handleEdit}
+          onCancel={() => setEditDialogOpen(false)}
+        />
+        <ConfirmDeleteDialog
+          open={confirmDialogOpen}
+          onOpenChange={setConfirmDialogOpen}
+          onConfirmDelete={handleDeleteConfirm}
+        />
       </div>
     </div>
   );

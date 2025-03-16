@@ -33,11 +33,13 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const employees = await prisma.member.findMany();
-    res.status(200).json(employees);
+    const members = await prisma.member.findMany();
+    res.status(200).json(members);
   } catch (error) {
-    console.error("Error fetching member:", error);
-    res.status(500).json({ error: "An error occurred while fetching member." });
+    console.error("Error fetching members:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching members." });
   }
 });
 
@@ -52,7 +54,7 @@ router.put("/:id", async (req, res) => {
       expectedSalary,
       expectedDateOfDefense,
     } = req.body;
-    const product = await prisma.member.update({
+    const member = await prisma.member.update({
       where: { id: memberId },
       data: {
         firstName,
@@ -63,21 +65,21 @@ router.put("/:id", async (req, res) => {
         expectedDateOfDefense,
       },
     });
-    res.status(200).json(product);
+    res.status(200).json(member);
   } catch (error) {
     res
       .status(500)
-      .json({ error: "An error occurred while updating the product." });
+      .json({ error: "An error occurred while updating the member." });
   }
 });
 
 router.delete("/:id", async (req, res) => {
   try {
     const memberId = parseInt(req.params.id);
-    await prisma.product.delete({
+    await prisma.member.delete({
       where: { id: memberId },
     });
-    res.status(200).json({ message: `member with ID ${memberId} deleted` });
+    res.status(200).json({ message: `Member with ID ${memberId} deleted` });
   } catch (error) {
     res
       .status(500)

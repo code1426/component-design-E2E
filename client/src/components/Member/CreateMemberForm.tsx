@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Member } from "@/types/member.type";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 interface CreateMemberFormProps {
   onSubmit: (member: Member) => void;
@@ -32,7 +35,6 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({
 
   const [formData, setFormData] = useState<FormData>(initialState);
 
-  // Reset form when the dialog closes
   useEffect(() => {
     if (!open) {
       setFormData(initialState);
@@ -54,143 +56,115 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({
       expectedSalary: formData.expectedSalary
         ? Number(formData.expectedSalary)
         : 0,
-      // Convert the date string to a Date object.
       expectedDateOfDefense: new Date(formData.expectedDateOfDefense),
     };
     onSubmit(member);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Row 1: First Name and Last Name */}
+    <form onSubmit={handleSubmit} className="space-y-4 ">
       <div className="flex flex-col md:flex-row md:space-x-4">
         <div className="flex-1">
-          <label
-            htmlFor="firstName"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <Label htmlFor="firstName" className="block text-sm font-medium">
             First Name
-          </label>
-          <input
+          </Label>
+          <Input
             type="text"
             name="firstName"
             id="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            placeholder="First Name"
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            placeholder="Enter your first name"
             required
+            className="mt-1"
           />
         </div>
         <div className="flex-1">
-          <label
-            htmlFor="lastName"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <Label htmlFor="lastName" className="block text-sm font-medium">
             Last Name
-          </label>
-          <input
+          </Label>
+          <Input
             type="text"
             name="lastName"
             id="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            placeholder="Last Name"
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            placeholder="Enter your last name"
             required
+            className="mt-1"
           />
         </div>
       </div>
-      {/* Row 2: Group Name and Role */}
       <div className="flex flex-col md:flex-row md:space-x-4">
         <div className="flex-1">
-          <label
-            htmlFor="groupName"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <Label htmlFor="groupName" className="block text-sm font-medium">
             Group Name
-          </label>
-          <input
+          </Label>
+          <Input
             type="text"
             name="groupName"
             id="groupName"
             value={formData.groupName}
             onChange={handleChange}
-            placeholder="Group Name"
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            placeholder="Enter your group name"
             required
+            className="mt-1"
           />
         </div>
         <div className="flex-1">
-          <label
-            htmlFor="role"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <Label htmlFor="role" className="block text-sm font-medium">
             Role
-          </label>
-          <input
+          </Label>
+          <Input
             type="text"
             name="role"
             id="role"
             value={formData.role}
             onChange={handleChange}
-            placeholder="Role"
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            placeholder="Enter your role"
             required
+            className="mt-1"
           />
         </div>
       </div>
-      {/* Row 3: Expected Salary and Expected Date of Defense */}
       <div className="flex flex-col md:flex-row md:space-x-4">
         <div className="flex-1">
-          <label
-            htmlFor="expectedSalary"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <Label htmlFor="expectedSalary" className="block text-sm font-medium">
             Expected Salary
-          </label>
-          <input
+          </Label>
+          <Input
             type="number"
             name="expectedSalary"
             id="expectedSalary"
             value={formData.expectedSalary}
             onChange={handleChange}
-            placeholder="Enter salary"
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            placeholder="Enter salary (e.g., 50000)"
+            className="mt-1"
           />
         </div>
         <div className="flex-1">
-          <label
+          <Label
             htmlFor="expectedDateOfDefense"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium"
           >
             Expected Date of Defense
-          </label>
-          <input
+          </Label>
+          <Input
             type="date"
             name="expectedDateOfDefense"
             id="expectedDateOfDefense"
             value={formData.expectedDateOfDefense}
             onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
             required
+            className="mt-1"
           />
         </div>
       </div>
       <div className="flex justify-end space-x-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-        >
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Add Member
-        </button>
+        </Button>
+        <Button type="submit">Add Member</Button>
       </div>
     </form>
   );
