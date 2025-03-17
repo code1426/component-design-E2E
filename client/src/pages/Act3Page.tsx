@@ -35,7 +35,7 @@ const Act3Page: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto h-screen w-screen bg-gray-800">
+    <div className="h-screen w-screen bg-gray-800">
       <header className="flex bg-lime-500 justify-between items-center p-5">
         <h1 className="text-2xl font-bold">Member Management</h1>
         <CreateMemberDialog onSubmit={handleCreateMember} />
