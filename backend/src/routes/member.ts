@@ -43,6 +43,27 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const memberId = parseInt(req.params.id);
+    const member = await prisma.member.findUnique({
+      where: { id: memberId },
+    });
+
+    if (!member) {
+      res.status(404).json({ error: `Member with ID ${memberId} not found` });
+      return;
+    }
+
+    res.status(200).json(member);
+  } catch (error) {
+    console.error("Error fetching member:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching the member." });
+  }
+});
+
 router.put("/:id", async (req, res) => {
   try {
     const memberId = parseInt(req.params.id);

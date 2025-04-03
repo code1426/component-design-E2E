@@ -7,7 +7,7 @@ import productRoutes from "./routes/product";
 import employeeRoutes from "./routes/employee";
 import memberRoutes from "./routes/member";
 
-const app = express();
+export const app = express();
 const prisma = new PrismaClient();
 
 const PORT = 3001;
