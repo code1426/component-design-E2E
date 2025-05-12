@@ -35,12 +35,37 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Update Task (Decorator)
+// Update Task (Decorator + full edit support)
 router.put("/:id", async (req, res) => {
   try {
-    const taskId = parseInt(req.params.id);
-    const data = req.body;
-    const updated = await prisma.task.update({ where: { id: taskId }, data });
+    const taskId = Number(req.params.id);
+    const { title, description, type, dueDate, completed, checklistItems } =
+      req.body;
+
+    const data: any = {
+      title,
+      description,
+      type,
+      completed,
+      dueDate: dueDate ? new Date(dueDate) : null,
+    };
+
+    if (Array.isArray(checklistItems)) {
+      data.checklist = {
+        deleteMany: { taskId },
+        create: checklistItems.map((item: any) => ({
+          text: item.text,
+          completed: item.completed,
+        })),
+      };
+    }
+
+    const updated = await prisma.task.update({
+      where: { id: taskId },
+      data,
+      include: { checklist: true },
+    });
+
     res.status(200).json(updated);
   } catch (error) {
     console.error("Error updating task:", error);

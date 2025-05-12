@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -71,16 +69,11 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
   const onFormSubmit = (data: TaskFormValues) => {
     let dueDate: Date | undefined = undefined;
 
-    // Only process date if it's a timed or checklist task
     if ((data.type === "timed" || data.type === "checklist") && data.date) {
-      if (data.time) {
-        // Combine date and time
-        const dateStr = `${data.date}T${data.time}:00`;
-        dueDate = new Date(dateStr);
-      } else {
-        // Use just the date with default time (start of day)
-        dueDate = new Date(`${data.date}T00:00:00`);
-      }
+      const dateStr = data.time
+        ? `${data.date}T${data.time}:00`
+        : `${data.date}T00:00:00`;
+      dueDate = new Date(dateStr);
     }
 
     const newTask: Task = {
@@ -88,7 +81,7 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
       title: data.title,
       description: data.description || "",
       completed: false,
-      dueDate: dueDate,
+      dueDate,
       type: data.type,
     };
 
@@ -120,29 +113,33 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
     <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
       <Tabs
         value={taskType}
-        onValueChange={(value) =>
-          setValue("type", value as "basic" | "timed" | "checklist")
-        }
+        onValueChange={(value) => setValue("type", value as any)}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-3 mb-4 bg-gray-100">
+        <TabsList className="grid grid-cols-3 mb-4 space-x-2 justify-between">
           <TabsTrigger
             value="basic"
-            className={`flex items-center gap-2 ${getTabStyle("basic")}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded ${getTabStyle(
+              "basic"
+            )}`}
           >
             <FileText className="h-4 w-4" />
             <span>Basic</span>
           </TabsTrigger>
           <TabsTrigger
             value="timed"
-            className={`flex items-center gap-2 ${getTabStyle("timed")}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded ${getTabStyle(
+              "timed"
+            )}`}
           >
             <Clock className="h-4 w-4" />
             <span>Timed</span>
           </TabsTrigger>
           <TabsTrigger
             value="checklist"
-            className={`flex items-center gap-2 ${getTabStyle("checklist")}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded ${getTabStyle(
+              "checklist"
+            )}`}
           >
             <CheckSquare className="h-4 w-4" />
             <span>Checklist</span>
@@ -180,24 +177,31 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="date">Due Date</Label>
-              <Input id="date" type="date" {...register("date")} />
+              <input
+                type="date"
+                {...register("date")}
+                className="w-full border p-2"
+              />
             </div>
             <div>
               <Label htmlFor="time">Due Time</Label>
-              <Input id="time" type="time" {...register("time")} />
+              <input
+                type="time"
+                {...register("time")}
+                className="w-full border p-2"
+              />
             </div>
           </div>
         )}
 
         {taskType === "checklist" && (
-          <div className="border border-green-200 p-4 rounded-md bg-green-50">
-            <Label htmlFor="checklistItem">Checklist Items</Label>
-            <div className="flex gap-2 mt-2">
+          <div className="border border-green-200 p-4 rounded-md bg-green-50 space-y-3">
+            <Label>Checklist Items</Label>
+            <div className="flex gap-2">
               <Input
-                id="checklistItem"
+                placeholder="Add checklist item"
                 value={newChecklistItem}
                 onChange={(e) => setNewChecklistItem(e.target.value)}
-                placeholder="Add checklist item"
                 className="border-green-300"
               />
               <Button
@@ -211,7 +215,7 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
             </div>
 
             {checklistItems.length > 0 && (
-              <ul className="mt-2 space-y-1">
+              <ul className="mt-2 space-y-1 max-h-40 overflow-y-auto">
                 {checklistItems.map((item, index) => (
                   <li
                     key={index}
@@ -246,16 +250,7 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
             Cancel
           </Button>
         )}
-        <Button
-          type="submit"
-          className={
-            taskType === "basic"
-              ? "bg-purple-600 hover:bg-purple-700 text-white"
-              : taskType === "timed"
-              ? "bg-blue-600 hover:bg-blue-700 text-white"
-              : "bg-green-600 hover:bg-green-700 text-white"
-          }
-        >
+        <Button type="submit" className="bg-black text-white">
           Create Task
         </Button>
       </div>

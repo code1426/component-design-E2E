@@ -18,7 +18,12 @@ export class TaskSortingStrategy {
 
   // sort by id - oldest to most recent
   public static sortById(tasks: Task[]): Task[] {
-    return [...tasks].sort((a, b) => a.id.localeCompare(b.id));
+    return [...tasks].sort((a, b) => {
+      const idA = Number(a.id);
+      const idB = Number(b.id);
+
+      return idA - idB;
+    });
   }
 
   // sort by completion - incomplet first

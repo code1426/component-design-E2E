@@ -10,6 +10,6 @@ export interface Task {
   description?: string;
   completed: boolean;
   dueDate?: Date;
-  type: string;
+  type: "basic" | "timed" | "checklist";
   checklistItems?: ChecklistItem[];
 }

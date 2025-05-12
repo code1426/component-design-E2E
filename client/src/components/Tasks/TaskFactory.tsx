@@ -1,7 +1,7 @@
 import type { Task } from "@/types/task.type";
-import BasicTask from "./BasicTask";
-import TimedTask from "./TimedTask";
-import ChecklistTask from "./ChecklistTask";
+import { BasicTask } from "./BasicTask";
+import { TimedTask } from "./TimedTask";
+import { ChecklistTask } from "./ChecklistTask";
 
 // Factory Pattern: Creates different types of task components based on the type parameter
 interface TaskFactoryProps {
@@ -10,6 +10,7 @@ interface TaskFactoryProps {
   onToggleComplete: () => void;
   onRemove: () => void;
   onToggleChecklistItem?: (itemId: string) => void;
+  onEdit: (updatedTask: Task) => void;
 }
 
 export function TaskFactory({
@@ -17,16 +18,17 @@ export function TaskFactory({
   task,
   onToggleComplete,
   onRemove,
-  onToggleChecklistItem,
+  onToggleChecklistItem = () => {},
+  onEdit,
 }: TaskFactoryProps) {
   switch (type) {
     case "basic":
-      const basicTask = { ...task, dueDate: undefined };
       return (
         <BasicTask
-          task={basicTask}
+          task={task}
           onToggleComplete={onToggleComplete}
           onRemove={onRemove}
+          onEdit={onEdit}
         />
       );
     case "timed":
@@ -35,6 +37,7 @@ export function TaskFactory({
           task={task}
           onToggleComplete={onToggleComplete}
           onRemove={onRemove}
+          onEdit={onEdit}
         />
       );
     case "checklist":
@@ -44,15 +47,16 @@ export function TaskFactory({
           onToggleComplete={onToggleComplete}
           onRemove={onRemove}
           onToggleChecklistItem={onToggleChecklistItem}
+          onEdit={onEdit}
         />
       );
     default:
-      const defaultTask = { ...task, dueDate: undefined };
       return (
         <BasicTask
-          task={defaultTask}
+          task={task}
           onToggleComplete={onToggleComplete}
           onRemove={onRemove}
+          onEdit={onEdit}
         />
       );
   }
