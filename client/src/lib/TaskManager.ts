@@ -3,12 +3,13 @@ import type { Task } from "@/types/task.type";
 
 // Singleton Pattern: Using a custom hook instead of a class
 export function TaskManager() {
+  const baseUrl = "http://localhost:3001/api/tasks";
   const [tasks, setTasks] = useState<Task[]>([]);
 
   // Add a new task
   const addTask = async (task: Task) => {
     try {
-      const response = await fetch("http://localhost:3001/api/tasks", {
+      const response = await fetch(`${baseUrl}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -25,7 +26,6 @@ export function TaskManager() {
       return newTask;
     } catch (error) {
       console.error("Error adding task:", error);
-      // Fallback to local state if API fails
       setTasks((prev) => [...prev, task]);
       return task;
     }
@@ -34,7 +34,7 @@ export function TaskManager() {
   // Remove a task by id
   const removeTask = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/tasks/${id}`, {
+      const response = await fetch(`${baseUrl}/${id}`, {
         method: "DELETE",
       });
 
@@ -56,7 +56,7 @@ export function TaskManager() {
       const task = tasks.find((t) => t.id === id);
       if (!task) return;
 
-      const response = await fetch(`http://localhost:3001/api/tasks/${id}`, {
+      const response = await fetch(`${baseUrl}/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -96,18 +96,15 @@ export function TaskManager() {
         item.id === itemId ? { ...item, completed: !item.completed } : item
       );
 
-      const response = await fetch(
-        `http://localhost:3001/api/tasks/${taskId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            checklistItems: updatedItems,
-          }),
-        }
-      );
+      const response = await fetch(`${baseUrl}/${taskId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          checklistItems: updatedItems,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to update checklist item");
@@ -138,22 +135,10 @@ export function TaskManager() {
     }
   };
 
-  // Search tasks by title or description
-  const searchTasks = (query: string) => {
-    if (!query) return tasks;
-
-    return tasks.filter(
-      (task) =>
-        task.title.toLowerCase().includes(query.toLowerCase()) ||
-        (task.description &&
-          task.description.toLowerCase().includes(query.toLowerCase()))
-    );
-  };
-
   // Fetch all tasks
   const fetchTasks = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/tasks");
+      const response = await fetch(`${baseUrl}`);
       if (!response.ok) {
         throw new Error("Failed to fetch tasks");
       }
@@ -183,7 +168,6 @@ export function TaskManager() {
     removeTask,
     toggleTaskComplete,
     toggleChecklistItem,
-    searchTasks,
     fetchTasks,
   };
 }

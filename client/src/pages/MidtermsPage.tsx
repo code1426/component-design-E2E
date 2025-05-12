@@ -6,7 +6,6 @@ import { TaskSortingStrategy } from "@/lib/TaskSortingStrategy";
 import { Notification } from "@/components/Tasks/Notification";
 import type { Task } from "@/types/task.type";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -28,7 +27,6 @@ import {
   List,
   CheckSquare,
   Filter,
-  Search,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -38,7 +36,6 @@ const MidtermsPage = () => {
   const [sortedTasks, setSortedTasks] = useState<Task[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     // Fetch tasks on component mount
@@ -49,11 +46,6 @@ const MidtermsPage = () => {
     // Apply sorting strategy based on selected method
     let filteredTasks = taskManager.tasks;
 
-    // Apply search filter if query exists
-    if (searchQuery) {
-      filteredTasks = taskManager.searchTasks(searchQuery);
-    }
-
     // Apply sorting strategy
     if (sortMethod === "date") {
       setSortedTasks(TaskSortingStrategy.sortByDate(filteredTasks));
@@ -62,22 +54,15 @@ const MidtermsPage = () => {
     } else {
       setSortedTasks(TaskSortingStrategy.sortById(filteredTasks));
     }
-  }, [taskManager.tasks, sortMethod, searchQuery]);
+  }, [taskManager.tasks, sortMethod]);
 
   const handleAddTask = (task: Task) => {
     taskManager.addTask(task);
     setDialogOpen(false);
   };
 
-  const handleEditTask = (updatedTask: Task) => {
-    // Implement task editing functionality
-    console.log("Editing task:", updatedTask);
-    // This would typically call an API endpoint or update local state
-    // For now, we'll just log it
-  };
-
   return (
-    <div className="w-full mx-auto p-4 md:p-6 text-center min-h-screen bg-gray-50">
+    <div className="w-screen p-4 text-center h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <header className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
@@ -128,40 +113,28 @@ const MidtermsPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                <Input
-                  placeholder="Search tasks..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 border-gray-300"
-                />
-              </div>
             </div>
 
             <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1 shrink-0">
               <Button
-                variant={viewMode === "grid" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("grid")}
                 className={
                   viewMode === "grid"
                     ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-                    : "text-gray-700 hover:bg-gray-200"
+                    : "bg-white text-gray-700 hover:bg-gray-200"
                 }
               >
                 <LayoutGrid className="h-4 w-4" />
                 <span className="sr-only sm:not-sr-only ml-1">Grid</span>
               </Button>
               <Button
-                variant={viewMode === "list" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("list")}
                 className={
                   viewMode === "list"
                     ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-                    : "text-gray-700 hover:bg-gray-200"
+                    : "bg-white text-gray-700 hover:bg-gray-200"
                 }
               >
                 <List className="h-4 w-4" />
@@ -221,7 +194,6 @@ const MidtermsPage = () => {
                   onToggleChecklistItem={(itemId) =>
                     taskManager.toggleChecklistItem(task.id, itemId)
                   }
-                  onEdit={handleEditTask}
                 />
               </div>
             ))}
