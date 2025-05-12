@@ -64,7 +64,7 @@ const MidtermsPage = () => {
           <header className="mb-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                Task Manager
+                To Do List
               </h1>
               <div className="flex items-center gap-2">
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

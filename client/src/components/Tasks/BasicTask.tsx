@@ -52,14 +52,15 @@ export const BasicTask: React.FC<BaseTaskProps> = ({
           task.completed ? "line-through text-gray-500" : "text-gray-900"
         }`}
       >
-        {" "}
-        {task.title}{" "}
+        {task.title}
       </h3>
-      {task.description && (
-        <p className="text-sm text-left text-gray-700 mb-2 h-16 overflow-y-auto">
-          {task.description}
-        </p>
-      )}
+      <div className="h-16 mb-2">
+        {task.description && (
+          <p className="text-sm text-left text-gray-700 overflow-y-auto">
+            {task.description}
+          </p>
+        )}
+      </div>
     </CardContent>
 
     <CardFooter className="p-3 flex justify-between items-center border-t mt-2">

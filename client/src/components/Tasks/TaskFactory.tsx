@@ -3,7 +3,6 @@ import { BasicTask } from "./BasicTask";
 import { TimedTask } from "./TimedTask";
 import { ChecklistTask } from "./ChecklistTask";
 
-// Factory Pattern: Creates different types of task components based on the type parameter
 interface TaskFactoryProps {
   type: string;
   task: Task;
@@ -13,14 +12,14 @@ interface TaskFactoryProps {
   onEdit: (updatedTask: Task) => void;
 }
 
-export function TaskFactory({
+export const TaskFactory = ({
   type,
   task,
   onToggleComplete,
   onRemove,
   onToggleChecklistItem = () => {},
   onEdit,
-}: TaskFactoryProps) {
+}: TaskFactoryProps) => {
   switch (type) {
     case "basic":
       return (
@@ -60,4 +59,4 @@ export function TaskFactory({
         />
       );
   }
-}
+};

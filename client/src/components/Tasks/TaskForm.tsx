@@ -50,7 +50,6 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
 
   const taskType = watch("type");
 
-  // Update date fields visibility based on task type
   useEffect(() => {
     setShowDateFields(taskType === "timed" || taskType === "checklist");
   }, [taskType]);
@@ -176,7 +175,7 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
         {showDateFields && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="date">Due Date</Label>
+              <Label>Due Date</Label>
               <input
                 type="date"
                 {...register("date")}
@@ -184,7 +183,7 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
               />
             </div>
             <div>
-              <Label htmlFor="time">Due Time</Label>
+              <Label>Due Time</Label>
               <input
                 type="time"
                 {...register("time")}

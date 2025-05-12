@@ -138,19 +138,14 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label
-              htmlFor="title"
-              className={errors.title ? "text-red-500" : ""}
-            >
-              Title
-            </Label>
+            <Label className={errors.title ? "text-red-500" : ""}>Title</Label>
             <Input id="title" {...register("title")} />
             {errors.title && (
               <p className="text-red-500 text-sm">{errors.title.message}</p>
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="description">Description</Label>
+            <Label>Description</Label>
             <Textarea id="description" {...register("description")} rows={3} />
           </div>
           <div className="flex items-center space-x-2">
@@ -159,13 +154,13 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
               {...register("completed")}
               className="bg-white border-black"
             />
-            <Label htmlFor="completed">Mark as completed</Label>
+            <Label>Mark as completed</Label>
           </div>
 
           {(taskType === "timed" || taskType === "checklist") && (
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="dueDate">Due Date</Label>
+                <Label>Due Date</Label>
                 <input
                   type="date"
                   id="dueDate"
@@ -174,7 +169,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="dueTime">Due Time</Label>
+                <Label>Due Time</Label>
                 <input
                   type="time"
                   id="dueTime"
