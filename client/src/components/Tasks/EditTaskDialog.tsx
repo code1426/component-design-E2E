@@ -130,7 +130,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
       >
         <Pencil className="h-4 w-4" />
       </Button>
-      <DialogContent className="sm:max-w-md w-full max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="sm:max-w-md w-full max-h-screen p-0">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
           <DialogTitle className="text-lg">
             Edit {taskType.charAt(0).toUpperCase() + taskType.slice(1)} Task
@@ -191,7 +191,6 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
                   <Label htmlFor="dueDate">Due Date</Label>
                   <input
                     type="date"
-                    id="dueDate"
                     {...register("dueDate")}
                     className="w-full border p-2 rounded"
                   />
@@ -200,7 +199,6 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
                   <Label htmlFor="dueTime">Due Time</Label>
                   <input
                     type="time"
-                    id="dueTime"
                     {...register("dueTime")}
                     className="w-full border p-2 rounded"
                   />
@@ -255,6 +253,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
                               item.completed ? "line-through text-gray-500" : ""
                             }`}
                             title={item.text}
+                            id={item.text}
                           >
                             {item.text}
                           </span>

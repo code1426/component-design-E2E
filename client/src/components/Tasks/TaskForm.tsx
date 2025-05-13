@@ -114,7 +114,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
   return (
     <form
       onSubmit={handleSubmit(onFormSubmit)}
-      className="space-y-4 max-h-[80vh] overflow-y-auto overflow-x-hidden pr-1"
+      className="space-y-4 max-h-screen pr-1"
     >
       <Tabs
         value={taskType}
@@ -208,7 +208,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
             </Button>
           </div>
 
-          <div className="max-h-48 overflow-y-auto overflow-x-hidden custom-scrollbar">
+          <div className="custom-scrollbar">
             {checklistItems.length > 0 ? (
               <ul className="space-y-1">
                 {checklistItems.map((text, idx) => (
@@ -216,7 +216,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
                     key={idx}
                     className="flex items-center justify-between bg-white p-2 rounded border text-sm"
                   >
-                    <span className="truncate flex-1 max-w-[calc(100%-2rem)]">
+                    <span
+                      className="truncate flex-1 max-w-[calc(100%-2rem)]"
+                      id={text}
+                    >
                       • {text}
                     </span>
                     <Button
