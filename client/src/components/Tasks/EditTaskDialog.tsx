@@ -151,7 +151,8 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
           <div className="flex items-center space-x-2">
             <Checkbox
               id="completed"
-              {...register("completed")}
+              checked={watch("completed")}
+              onCheckedChange={(checked) => setValue("completed", !!checked)}
               className="bg-white border-black"
             />
             <Label>Mark as completed</Label>
@@ -190,27 +191,32 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
                   onKeyDown={(e) =>
                     e.key === "Enter" && (e.preventDefault(), addItem())
                   }
+                  className="h-8 text-sm"
                 />
-                <Button type="button" size="sm" onClick={addItem}>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={addItem}
+                  className="h-8 px-2"
+                >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="max-h-40 overflow-y-auto space-y-2">
+              <div className="max-h-28 overflow-y-auto space-y-1 custom-scrollbar">
                 {checklistItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center space-x-2 border p-2 rounded"
+                    className="flex items-center space-x-2 border p-2 rounded bg-white"
                   >
                     <Checkbox
                       checked={item.completed}
                       onCheckedChange={() => toggleItem(item.id)}
+                      className="h-4 w-4"
                     />
                     <span
-                      className={
-                        item.completed
-                          ? "line-through text-gray-500 flex-1"
-                          : "flex-1"
-                      }
+                      className={`${
+                        item.completed ? "line-through text-gray-500" : ""
+                      } flex-1 truncate text-sm`}
                     >
                       {item.text}
                     </span>
@@ -218,11 +224,17 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeItem(item.id)}
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3 w-3" />
                     </Button>
                   </div>
                 ))}
+                {checklistItems.length === 0 && (
+                  <p className="text-sm text-gray-500 italic text-center py-2">
+                    No items added yet
+                  </p>
+                )}
               </div>
             </div>
           )}

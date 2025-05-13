@@ -1,39 +1,54 @@
 import { useState } from "react";
-import type { Task } from "@/types/task.type";
+import { Task, ChecklistItem } from "@/types/task.type";
 import { useToast } from "@/hooks/use-toast";
 
-// Singleton Pattern: Using a custom hook instead of a class
 export function TaskManager() {
   const baseUrl = "http://localhost:3001/api/tasks";
   const [tasks, setTasks] = useState<Task[]>([]);
   const { toast } = useToast();
 
-  // Add a new task
-  const addTask = async (task: Task) => {
+  const parseChecklistItems = (raw: any): ChecklistItem[] => {
+    if (Array.isArray(raw)) return raw;
     try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  };
+
+  // Add a new task
+  const addTask = async (task: Omit<Task, "id">) => {
+    try {
+      const body = {
+        ...task,
+        checklist: JSON.stringify(task.checklistItems || []),
+      };
       const response = await fetch(`${baseUrl}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(task),
+        body: JSON.stringify(body),
       });
       if (!response.ok) throw new Error("Failed to add task");
-      const newTask = await response.json();
-      setTasks((prev) => [...prev, newTask]);
+      const newTask: any = await response.json();
+      const parsed = {
+        ...newTask,
+        checklistItems: parseChecklistItems(newTask.checklist),
+      };
+      setTasks((prev) => [...prev, parsed]);
       toast({
         title: "Task added",
-        description: newTask.title,
+        description: parsed.title,
         variant: "default",
       });
-      return newTask;
+      return parsed;
     } catch (error) {
       console.error("Error adding task:", error);
-      setTasks((prev) => [...prev, task]);
       toast({
         title: "Add failed",
         description: task.title,
         variant: "destructive",
       });
-      return task;
+      return task as Task;
     }
   };
 
@@ -42,58 +57,41 @@ export function TaskManager() {
     try {
       const response = await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Failed to delete task");
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+      setTasks((prev) => prev.filter((t) => t.id !== id));
       toast({ title: "Task removed", variant: "default" });
     } catch (error) {
       console.error("Error removing task:", error);
-      setTasks((prev) => prev.filter((task) => task.id !== id));
       toast({ title: "Remove failed", variant: "destructive" });
-    }
-  };
-
-  // Toggle task completion status
-  const toggleTaskComplete = async (id: string) => {
-    try {
-      const task = tasks.find((t) => t.id === id);
-      if (!task) return;
-      const response = await fetch(`${baseUrl}/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completed: !task.completed }),
-      });
-      if (!response.ok) throw new Error("Failed to update task");
-      const updatedTask = await response.json();
-      setTasks((prev) => prev.map((t) => (t.id === id ? updatedTask : t)));
-      toast({ title: "Task updated", description: updatedTask.title });
-    } catch (error) {
-      console.error("Error toggling task completion:", error);
-      setTasks((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-      );
-      toast({ title: "Update failed", variant: "destructive" });
     }
   };
 
   // Update a task
   const updateTask = async (updated: Task) => {
     try {
+      const body = {
+        ...updated,
+        checklist: JSON.stringify(updated.checklistItems || []),
+      };
       const response = await fetch(`${baseUrl}/${updated.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated),
+        body: JSON.stringify(body),
       });
       if (!response.ok) throw new Error("Failed to update task");
-      const saved = await response.json();
-      setTasks((prev) => prev.map((t) => (t.id === saved.id ? saved : t)));
+      const saved: any = await response.json();
+      const parsed = {
+        ...saved,
+        checklistItems: parseChecklistItems(saved.checklist),
+      };
+      setTasks((prev) => prev.map((t) => (t.id === parsed.id ? parsed : t)));
       toast({
         title: "Task updated",
-        description: saved.title,
+        description: parsed.title,
         variant: "default",
       });
-      return saved;
+      return parsed;
     } catch (error) {
       console.error("Error updating task:", error);
-      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
       toast({
         title: "Update failed",
         description: updated.title,
@@ -105,40 +103,19 @@ export function TaskManager() {
 
   // Toggle checklist item completion
   const toggleChecklistItem = async (taskId: string, itemId: string) => {
-    try {
-      const task = tasks.find((t) => t.id === taskId);
-      if (!task || !task.checklistItems) return;
-      const updatedItems = task.checklistItems.map((item) =>
-        item.id === itemId ? { ...item, completed: !item.completed } : item
-      );
-      const response = await fetch(`${baseUrl}/${taskId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ checklistItems: updatedItems }),
-      });
-      if (!response.ok) throw new Error("Failed to update checklist item");
-      const reloaded = await response.json();
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? reloaded : t)));
-      toast({ title: "Checklist item toggled", variant: "default" });
-    } catch (error) {
-      console.error("Error toggling checklist item:", error);
-      setTasks((prev) =>
-        prev.map((t) => {
-          if (t.id === taskId && t.checklistItems) {
-            return {
-              ...t,
-              checklistItems: t.checklistItems.map((item) =>
-                item.id === itemId
-                  ? { ...item, completed: !item.completed }
-                  : item
-              ),
-            };
-          }
-          return t;
-        })
-      );
-      toast({ title: "Toggle failed", variant: "destructive" });
-    }
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task?.checklistItems) return;
+    const updatedItems = task.checklistItems.map((item) =>
+      item.id === itemId ? { ...item, completed: !item.completed } : item
+    );
+    return updateTask({ ...task, checklistItems: updatedItems });
+  };
+
+  // Toggle task completion status
+  const toggleTaskComplete = (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+    return updateTask({ ...task, completed: !task.completed });
   };
 
   // Fetch all tasks
@@ -146,16 +123,15 @@ export function TaskManager() {
     try {
       const response = await fetch(`${baseUrl}`);
       if (!response.ok) throw new Error("Failed to fetch tasks");
-      const data = await response.json();
-      // Adapter: Convert API data to Task[]
-      const adapted = data.map((api: any) => ({
+      const data: any[] = await response.json();
+      const adapted: Task[] = data.map((api) => ({
         id: api.id,
         title: api.title,
-        description: api.description || "",
+        description: api.description,
         completed: api.completed,
         dueDate: api.dueDate ? new Date(api.dueDate) : undefined,
-        type: api.type || "basic",
-        checklistItems: api.checklistItems || [],
+        type: api.type,
+        checklistItems: parseChecklistItems(api.checklist),
       }));
       setTasks(adapted);
       toast({ title: "Tasks loaded", variant: "default" });
@@ -166,13 +142,41 @@ export function TaskManager() {
     }
   };
 
+  const addChecklistItem = (taskId: string, text: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    const newItem: ChecklistItem = {
+      id: `cl-${Date.now()}`,
+      text,
+      completed: false,
+    };
+    return updateTask({
+      ...task,
+      checklistItems: [...(task.checklistItems ?? []), newItem],
+    });
+  };
+
+  // Remove a checklist item by filtering and updating
+  const removeChecklistItem = (taskId: string, itemId: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    return updateTask({
+      ...task,
+      checklistItems: (task.checklistItems ?? []).filter(
+        (i) => i.id !== itemId
+      ),
+    });
+  };
+
   return {
     tasks,
     addTask,
     removeTask,
-    toggleTaskComplete,
     updateTask,
+    toggleTaskComplete,
     toggleChecklistItem,
     fetchTasks,
+    addChecklistItem,
+    removeChecklistItem,
   };
 }

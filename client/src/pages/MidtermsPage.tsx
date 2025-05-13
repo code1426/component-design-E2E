@@ -47,7 +47,7 @@ const MidtermsPage = () => {
     }
   }, [taskManager.tasks, sortMethod]);
 
-  const handleAddTask = (task: Task) => {
+  const handleAddTask = (task: Omit<Task, "id">) => {
     taskManager.addTask(task);
     setDialogOpen(false);
   };
@@ -93,12 +93,7 @@ const MidtermsPage = () => {
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
                 <div className="flex items-center gap-2">
                   <Filter className="h-5 w-5 text-gray-500" />
-                  <Label
-                    htmlFor="sortMethod"
-                    className="font-medium text-gray-700"
-                  >
-                    Sort By:
-                  </Label>
+                  <Label className="font-medium text-gray-700">Sort By:</Label>
                   <Select value={sortMethod} onValueChange={setSortMethod}>
                     <SelectTrigger className="w-[150px] border-gray-300">
                       <SelectValue placeholder="Select sort method" />
@@ -138,7 +133,6 @@ const MidtermsPage = () => {
                       <Notification>This task is overdue!</Notification>
                     )}
 
-                  {/* Factory Pattern: Render different task types */}
                   <TaskFactory
                     type={task.type}
                     task={task}
@@ -148,6 +142,12 @@ const MidtermsPage = () => {
                     onRemove={() => taskManager.removeTask(task.id)}
                     onToggleChecklistItem={(itemId) =>
                       taskManager.toggleChecklistItem(task.id, itemId)
+                    }
+                    onAddChecklistItem={(text) =>
+                      taskManager.addChecklistItem(task.id, text)
+                    }
+                    onRemoveChecklistItem={(itemId) =>
+                      taskManager.removeChecklistItem(task.id, itemId)
                     }
                     onEdit={handleEditTask}
                   />

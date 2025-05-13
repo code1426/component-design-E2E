@@ -6,13 +6,14 @@ const router = Router();
 // Create Task (Factory)
 router.post("/", async (req, res) => {
   try {
-    const { title, description, dueDate, type } = req.body;
+    const { title, description, dueDate, type, checklist = [] } = req.body;
     const task = await prisma.task.create({
       data: {
         title,
         description,
         dueDate: dueDate ? new Date(dueDate) : null,
         type,
+        checklist,
       },
     });
     res.status(201).json(task);
@@ -27,7 +28,7 @@ router.post("/", async (req, res) => {
 // Fetch all Tasks
 router.get("/", async (req, res) => {
   try {
-    const tasks = await prisma.task.findMany({ include: { checklist: true } });
+    const tasks = await prisma.task.findMany();
     res.status(200).json(tasks);
   } catch (error) {
     console.error("Error fetching tasks:", error);
@@ -35,35 +36,29 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Update Task (Decorator + full edit support)
+// Update Task
 router.put("/:id", async (req, res) => {
   try {
     const taskId = Number(req.params.id);
-    const { title, description, type, dueDate, completed, checklistItems } =
-      req.body;
-
-    const data: any = {
+    const {
       title,
       description,
       type,
+      dueDate,
       completed,
-      dueDate: dueDate ? new Date(dueDate) : null,
-    };
-
-    if (Array.isArray(checklistItems)) {
-      data.checklist = {
-        deleteMany: { taskId },
-        create: checklistItems.map((item: any) => ({
-          text: item.text,
-          completed: item.completed,
-        })),
-      };
-    }
+      checklist = [],
+    } = req.body;
 
     const updated = await prisma.task.update({
       where: { id: taskId },
-      data,
-      include: { checklist: true },
+      data: {
+        title,
+        description,
+        type,
+        completed,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        checklist, // pass raw JSON
+      },
     });
 
     res.status(200).json(updated);

@@ -1,3 +1,4 @@
+import type React from "react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,9 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Clock, CheckSquare, Plus, X } from "lucide-react";
-import type { Task } from "@/types/task.type";
+import type { Task, ChecklistItem } from "@/types/task.type";
 
-// Define the schema for task validation
+// form schema
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
@@ -22,11 +23,11 @@ const taskSchema = z.object({
 type TaskFormValues = z.infer<typeof taskSchema>;
 
 interface TaskFormProps {
-  onSubmit: (task: Task) => void;
+  onSubmit: (task: Omit<Task, "id">) => void;
   onCancel?: () => void;
 }
 
-const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
+const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
   const [checklistItems, setChecklistItems] = useState<string[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [showDateFields, setShowDateFields] = useState(false);
@@ -54,57 +55,59 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
     setShowDateFields(taskType === "timed" || taskType === "checklist");
   }, [taskType]);
 
-  const handleAddChecklistItem = () => {
-    if (newChecklistItem.trim()) {
-      setChecklistItems([...checklistItems, newChecklistItem]);
-      setNewChecklistItem("");
-    }
+  const addItem = () => {
+    if (!newChecklistItem.trim()) return;
+    setChecklistItems((list) => [...list, newChecklistItem.trim()]);
+    setNewChecklistItem("");
   };
 
-  const handleRemoveChecklistItem = (index: number) => {
-    setChecklistItems(checklistItems.filter((_, i) => i !== index));
+  const removeItem = (idx: number) => {
+    setChecklistItems((list) => list.filter((_, i) => i !== idx));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addItem();
+    }
   };
 
   const onFormSubmit = (data: TaskFormValues) => {
-    let dueDate: Date | undefined = undefined;
-
-    if ((data.type === "timed" || data.type === "checklist") && data.date) {
-      const dateStr = data.time
+    let dueDate: Date | undefined;
+    if (showDateFields && data.date) {
+      const iso = data.time
         ? `${data.date}T${data.time}:00`
         : `${data.date}T00:00:00`;
-      dueDate = new Date(dateStr);
+      dueDate = new Date(iso);
     }
 
-    const newTask: Task = {
-      id: Date.now().toString(),
+    const payload: Omit<Task, "id"> = {
       title: data.title,
-      description: data.description || "",
+      description: data.description,
       completed: false,
       dueDate,
       type: data.type,
+      checklistItems:
+        data.type === "checklist"
+          ? checklistItems.map<ChecklistItem>((text, idx) => ({
+              id: `new-${Date.now()}-${idx}`,
+              text,
+              completed: false,
+            }))
+          : undefined,
     };
 
-    if (data.type === "checklist" && checklistItems.length > 0) {
-      newTask.checklistItems = checklistItems.map((item, index) => ({
-        id: `cl-${Date.now()}-${index}`,
-        text: item,
-        completed: false,
-      }));
-    }
-
-    onSubmit(newTask);
+    onSubmit(payload);
   };
 
-  const getTabStyle = (value: string) => {
-    switch (value) {
+  const getTabStyle = (val: Task["type"]) => {
+    switch (val) {
       case "basic":
         return "bg-purple-100 data-[state=active]:bg-purple-200 text-purple-800";
       case "timed":
         return "bg-blue-100 data-[state=active]:bg-blue-200 text-blue-800";
       case "checklist":
         return "bg-green-100 data-[state=active]:bg-green-200 text-green-800";
-      default:
-        return "";
     }
   };
 
@@ -112,45 +115,30 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
     <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
       <Tabs
         value={taskType}
-        onValueChange={(value) => setValue("type", value as any)}
+        onValueChange={(v) => setValue("type", v as any)}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-3 mb-4 space-x-2 justify-between">
-          <TabsTrigger
-            value="basic"
-            className={`flex items-center gap-2 px-4 py-2 rounded ${getTabStyle(
-              "basic"
-            )}`}
-          >
-            <FileText className="h-4 w-4" />
-            <span>Basic</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="timed"
-            className={`flex items-center gap-2 px-4 py-2 rounded ${getTabStyle(
-              "timed"
-            )}`}
-          >
-            <Clock className="h-4 w-4" />
-            <span>Timed</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="checklist"
-            className={`flex items-center gap-2 px-4 py-2 rounded ${getTabStyle(
-              "checklist"
-            )}`}
-          >
-            <CheckSquare className="h-4 w-4" />
-            <span>Checklist</span>
-          </TabsTrigger>
+        <TabsList className="grid grid-cols-3 mb-4 gap-2">
+          {(["basic", "timed", "checklist"] as Task["type"][]).map((val) => {
+            const Icon =
+              val === "basic"
+                ? FileText
+                : val === "timed"
+                ? Clock
+                : CheckSquare;
+            return (
+              <TabsTrigger key={val} value={val} className={getTabStyle(val)}>
+                <Icon className="h-4 w-4 mr-1" />
+                {val.charAt(0).toUpperCase() + val.slice(1)}
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
       </Tabs>
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="title" className={errors.title ? "text-red-500" : ""}>
-            Title
-          </Label>
+          <Label className={errors.title ? "text-red-500" : ""}>Title</Label>
           <Input
             id="title"
             {...register("title")}
@@ -158,98 +146,102 @@ const TaskForm = ({ onSubmit, onCancel }: TaskFormProps) => {
             placeholder="Task title"
           />
           {errors.title && (
-            <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
+            <p className="text-sm text-red-500">{errors.title.message}</p>
           )}
         </div>
-
         <div>
-          <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            {...register("description")}
-            placeholder="Task description"
-            rows={3}
-          />
+          <Label>Description</Label>
+          <Textarea {...register("description")} rows={3} />
         </div>
+      </div>
 
-        {showDateFields && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Due Date</Label>
-              <input
-                type="date"
-                {...register("date")}
-                className="w-full border p-2"
-              />
-            </div>
-            <div>
-              <Label>Due Time</Label>
-              <input
-                type="time"
-                {...register("time")}
-                className="w-full border p-2"
-              />
-            </div>
+      {showDateFields && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Due Date</Label>
+            <input
+              type="date"
+              {...register("date")}
+              className="border-2 rounded p-2"
+            />
           </div>
-        )}
+          <div>
+            <Label>Due Time</Label>
+            <input
+              type="time"
+              {...register("time")}
+              className="border-2 rounded p-2"
+            />
+          </div>
+        </div>
+      )}
 
-        {taskType === "checklist" && (
-          <div className="border border-green-200 p-4 rounded-md bg-green-50 space-y-3">
-            <Label>Checklist Items</Label>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add checklist item"
-                value={newChecklistItem}
-                onChange={(e) => setNewChecklistItem(e.target.value)}
-                className="border-green-300"
-              />
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleAddChecklistItem}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
+      {taskType === "checklist" && (
+        <div className="border border-green-200 bg-green-50 p-3 rounded space-y-2">
+          <div className="flex justify-between items-center">
+            <Label className="text-sm font-medium">Checklist Items</Label>
+            <span className="text-xs text-gray-500">
+              {checklistItems.length} items
+            </span>
+          </div>
 
-            {checklistItems.length > 0 && (
-              <ul className="mt-2 space-y-1 max-h-40 overflow-y-auto">
-                {checklistItems.map((item, index) => (
+          <div className="flex gap-1">
+            <Input
+              placeholder="Add new item"
+              value={newChecklistItem}
+              onChange={(e) => setNewChecklistItem(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="h-8 text-sm"
+            />
+            <Button
+              type="button"
+              size="sm"
+              onClick={addItem}
+              className="h-8 px-2"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="max-h-32 overflow-y-auto custom-scrollbar">
+            {checklistItems.length > 0 ? (
+              <ul className="space-y-1">
+                {checklistItems.map((text, idx) => (
                   <li
-                    key={index}
-                    className="flex items-center gap-2 bg-white p-2 rounded border border-green-200"
+                    key={idx}
+                    className="flex items-center justify-between bg-white p-2 rounded border text-sm"
                   >
-                    <span className="flex-1 truncate">• {item}</span>
+                    <span className="truncate flex-1">• {text}</span>
                     <Button
                       variant="ghost"
                       size="sm"
-                      type="button"
-                      onClick={() => handleRemoveChecklistItem(index)}
-                      className="text-gray-500 hover:text-red-500"
+                      onClick={() => removeItem(idx)}
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3 w-3" />
                     </Button>
                   </li>
                 ))}
               </ul>
+            ) : (
+              <p className="text-sm text-gray-500 italic text-center py-2">
+                No items added yet
+              </p>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2">
         {onCancel && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            className="border-gray-300 text-gray-700 hover:bg-gray-100"
-          >
+          <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
         )}
-        <Button type="submit" className="bg-black text-white">
+        <Button
+          type="submit"
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
           Create Task
         </Button>
       </div>

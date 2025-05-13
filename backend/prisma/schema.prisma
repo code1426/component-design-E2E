@@ -66,20 +66,12 @@ BY_ID
 }
 
 model Task {
-id          Int              @id @default(autoincrement())
-title       String
-description String?
-dueDate     DateTime?
-type        TaskType         @default(basic)
-completed   Boolean          @default(false)
-createdAt   DateTime         @default(now())
-checklist   ChecklistItem[]
-}
-
-model ChecklistItem {
-id        Int     @id @default(autoincrement())
-text      String
-completed Boolean @default(false)
-task      Task    @relation(fields: [taskId], references: [id])
-taskId    Int
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String?
+  dueDate     DateTime?
+  type        TaskType         @default(basic)
+  completed   Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  checklist   Json             @default("[]")
 }
