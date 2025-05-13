@@ -54,11 +54,15 @@ export const BasicTask: React.FC<BaseTaskProps> = ({
       >
         {task.title}
       </h3>
-      <div className="h-16 mb-2">
-        {task.description && (
-          <p className="text-sm text-left text-gray-700 overflow-y-auto">
+      <div className="h-24 mb-2 overflow-hidden">
+        {task.description ? (
+          <p className="text-sm text-left text-gray-700 overflow-y-auto max-h-24">
             {task.description}
           </p>
+        ) : (
+          <div className="flex items-center justify-center h-full bg-gray-50 rounded">
+            <p className="text-sm text-gray-400 italic">No description</p>
+          </div>
         )}
       </div>
     </CardContent>

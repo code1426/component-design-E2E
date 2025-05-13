@@ -66,11 +66,15 @@ export const TimedTask: React.FC<TimedTaskProps> = ({
       >
         {task.title}
       </h3>
-      <div className="mb-2 h-16 ">
-        {task.description && (
-          <p className="text-sm text-left text-gray-700 overflow-y-auto">
+      <div className="mb-2 h-24 overflow-hidden">
+        {task.description ? (
+          <p className="text-sm text-left text-gray-700 overflow-y-auto max-h-24">
             {task.description}
           </p>
+        ) : (
+          <div className="flex items-center justify-center h-full bg-gray-50 rounded">
+            <p className="text-sm text-gray-400 italic">No description</p>
+          </div>
         )}
       </div>
     </CardContent>

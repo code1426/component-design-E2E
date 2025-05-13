@@ -13,8 +13,8 @@ import type { Task, ChecklistItem } from "@/types/task.type";
 
 // form schema
 const taskSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  title: z.string().min(1, "Title is required").max(50),
+  description: z.string().max(200).optional(),
   date: z.string().optional(),
   time: z.string().optional(),
   type: z.enum(["basic", "timed", "checklist"]),
@@ -112,7 +112,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+    <form
+      onSubmit={handleSubmit(onFormSubmit)}
+      className="space-y-4 max-h-[80vh] overflow-y-auto overflow-x-hidden pr-1"
+    >
       <Tabs
         value={taskType}
         onValueChange={(v) => setValue("type", v as any)}
@@ -144,6 +147,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
             {...register("title")}
             className={errors.title ? "border-red-500" : ""}
             placeholder="Task title"
+            maxLength={50}
           />
           {errors.title && (
             <p className="text-sm text-red-500">{errors.title.message}</p>
@@ -151,33 +155,33 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
         </div>
         <div>
           <Label>Description</Label>
-          <Textarea {...register("description")} rows={3} />
+          <Textarea {...register("description")} rows={3} maxLength={200} />
         </div>
       </div>
 
       {showDateFields && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label>Due Date</Label>
+            <Label htmlFor="dueDate">Due Date</Label>
             <input
               type="date"
               {...register("date")}
-              className="border-2 rounded p-2"
+              className="w-full border p-2 rounded"
             />
           </div>
           <div>
-            <Label>Due Time</Label>
+            <Label htmlFor="dueTime">Due Time</Label>
             <input
               type="time"
               {...register("time")}
-              className="border-2 rounded p-2"
+              className="w-full border p-2 rounded"
             />
           </div>
         </div>
       )}
 
       {taskType === "checklist" && (
-        <div className="border border-green-200 bg-green-50 p-3 rounded space-y-2">
+        <div className="border-2 p-3 rounded space-y-2">
           <div className="flex justify-between items-center">
             <Label className="text-sm font-medium">Checklist Items</Label>
             <span className="text-xs text-gray-500">
@@ -192,6 +196,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
               onChange={(e) => setNewChecklistItem(e.target.value)}
               onKeyDown={handleKeyDown}
               className="h-8 text-sm"
+              maxLength={50}
             />
             <Button
               type="button"
@@ -203,7 +208,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
             </Button>
           </div>
 
-          <div className="max-h-32 overflow-y-auto custom-scrollbar">
+          <div className="max-h-48 overflow-y-auto overflow-x-hidden custom-scrollbar">
             {checklistItems.length > 0 ? (
               <ul className="space-y-1">
                 {checklistItems.map((text, idx) => (
@@ -211,12 +216,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
                     key={idx}
                     className="flex items-center justify-between bg-white p-2 rounded border text-sm"
                   >
-                    <span className="truncate flex-1">• {text}</span>
+                    <span className="truncate flex-1 max-w-[calc(100%-2rem)]">
+                      • {text}
+                    </span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => removeItem(idx)}
-                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-500 flex-shrink-0"
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -238,10 +245,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
             Cancel
           </Button>
         )}
-        <Button
-          type="submit"
-          className="bg-green-600 hover:bg-green-700 text-white"
-        >
+        <Button type="submit" className="bg-black text-white">
           Create Task
         </Button>
       </div>

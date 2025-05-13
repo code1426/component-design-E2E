@@ -37,7 +37,7 @@ export function TaskManager() {
       setTasks((prev) => [...prev, parsed]);
       toast({
         title: "Task added",
-        description: parsed.title,
+        description: "Task added successfully",
         variant: "default",
       });
       return parsed;
@@ -45,7 +45,7 @@ export function TaskManager() {
       console.error("Error adding task:", error);
       toast({
         title: "Add failed",
-        description: task.title,
+        description: "Failed to add task",
         variant: "destructive",
       });
       return task as Task;
@@ -86,7 +86,7 @@ export function TaskManager() {
       setTasks((prev) => prev.map((t) => (t.id === parsed.id ? parsed : t)));
       toast({
         title: "Task updated",
-        description: parsed.title,
+        description: "Task updated succesfully",
         variant: "default",
       });
       return parsed;
@@ -94,7 +94,7 @@ export function TaskManager() {
       console.error("Error updating task:", error);
       toast({
         title: "Update failed",
-        description: updated.title,
+        description: "Failed to update task",
         variant: "destructive",
       });
       return updated;

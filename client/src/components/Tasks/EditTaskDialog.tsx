@@ -20,8 +20,8 @@ import type { Task, ChecklistItem } from "@/types/task.type";
 
 // Zod schema
 const editTaskSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  title: z.string().min(1, "Title is required").max(50),
+  description: z.string().max(200).optional(),
   completed: z.boolean(),
   dueDate: z.string().optional(),
   dueTime: z.string().optional(),
@@ -130,122 +130,168 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ task, onSave }) => {
       >
         <Pencil className="h-4 w-4" />
       </Button>
-      <DialogContent className="sm:max-w-lg w-full">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="sm:max-w-md w-full max-h-[90vh] overflow-hidden p-0">
+        <DialogHeader className="px-4 pt-4 pb-2 border-b">
+          <DialogTitle className="text-lg">
             Edit {taskType.charAt(0).toUpperCase() + taskType.slice(1)} Task
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label className={errors.title ? "text-red-500" : ""}>Title</Label>
-            <Input id="title" {...register("title")} />
-            {errors.title && (
-              <p className="text-red-500 text-sm">{errors.title.message}</p>
+
+        <div className="overflow-y-auto max-h-[calc(90vh-8rem)]">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="px-4 py-3 space-y-4"
+          >
+            <div>
+              <Label
+                htmlFor="title"
+                className={errors.title ? "text-red-500" : ""}
+              >
+                Title
+              </Label>
+              <Input
+                id="title"
+                {...register("title")}
+                className={errors.title ? "border-red-500" : ""}
+                maxLength={50}
+              />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.title.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                {...register("description")}
+                rows={3}
+                className="resize-none"
+                maxLength={200}
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="completed"
+                checked={watch("completed")}
+                onCheckedChange={(checked) => setValue("completed", !!checked)}
+                className="bg-white border-black"
+              />
+              <Label htmlFor="completed" className="cursor-pointer">
+                Mark as completed
+              </Label>
+            </div>
+
+            {(taskType === "timed" || taskType === "checklist") && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="dueDate">Due Date</Label>
+                  <input
+                    type="date"
+                    id="dueDate"
+                    {...register("dueDate")}
+                    className="w-full border p-2 rounded"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="dueTime">Due Time</Label>
+                  <input
+                    type="time"
+                    id="dueTime"
+                    {...register("dueTime")}
+                    className="w-full border p-2 rounded"
+                  />
+                </div>
+              </div>
             )}
-          </div>
-          <div className="grid gap-2">
-            <Label>Description</Label>
-            <Textarea id="description" {...register("description")} rows={3} />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="completed"
-              checked={watch("completed")}
-              onCheckedChange={(checked) => setValue("completed", !!checked)}
-              className="bg-white border-black"
-            />
-            <Label>Mark as completed</Label>
-          </div>
 
-          {(taskType === "timed" || taskType === "checklist") && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label>Due Date</Label>
-                <input
-                  type="date"
-                  id="dueDate"
-                  {...register("dueDate")}
-                  className="border p-2 rounded"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>Due Time</Label>
-                <input
-                  type="time"
-                  id="dueTime"
-                  {...register("dueTime")}
-                  className="border p-2 rounded"
-                />
-              </div>
-            </div>
-          )}
+            {taskType === "checklist" && (
+              <div className="border rounded-md p-3 space-y-3 bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <Label className="text-sm font-medium">Checklist Items</Label>
+                  <span className="text-xs text-gray-500">
+                    {checklistItems.filter((i) => i.completed).length}/
+                    {checklistItems.length} completed
+                  </span>
+                </div>
 
-          {taskType === "checklist" && (
-            <div className="border rounded-md p-3 space-y-3">
-              <Label>Checklist Items</Label>
-              <div className="flex space-x-2">
-                <Input
-                  placeholder="New item"
-                  {...register("newItem")}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && (e.preventDefault(), addItem())
-                  }
-                  className="h-8 text-sm"
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={addItem}
-                  className="h-8 px-2"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="max-h-28 overflow-y-auto space-y-1 custom-scrollbar">
-                {checklistItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center space-x-2 border p-2 rounded bg-white"
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="New item"
+                    {...register("newItem")}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addItem())
+                    }
+                    className="h-8 text-sm"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={addItem}
+                    className="h-8 w-8 p-0 flex-shrink-0"
                   >
-                    <Checkbox
-                      checked={item.completed}
-                      onCheckedChange={() => toggleItem(item.id)}
-                      className="h-4 w-4"
-                    />
-                    <span
-                      className={`${
-                        item.completed ? "line-through text-gray-500" : ""
-                      } flex-1 truncate text-sm`}
-                    >
-                      {item.text}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeItem(item.id)}
-                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
-                {checklistItems.length === 0 && (
-                  <p className="text-sm text-gray-500 italic text-center py-2">
-                    No items added yet
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
 
-          <DialogFooter className="flex justify-end space-x-2">
+                <div className="max-h-40 overflow-y-auto space-y-1 custom-scrollbar pr-1">
+                  {checklistItems.length > 0 ? (
+                    <ul className="space-y-1">
+                      {checklistItems.map((item) => (
+                        <li
+                          key={item.id}
+                          className="flex items-center space-x-2 border p-2 rounded bg-white"
+                        >
+                          <Checkbox
+                            checked={item.completed}
+                            onCheckedChange={() => toggleItem(item.id)}
+                            className="h-4 w-4 flex-shrink-0"
+                          />
+                          <span
+                            className={`truncate text-sm flex-1 ${
+                              item.completed ? "line-through text-gray-500" : ""
+                            }`}
+                            title={item.text}
+                          >
+                            {item.text}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeItem(item.id)}
+                            className="h-6 w-6 p-0 text-gray-400 hover:text-red-500 flex-shrink-0"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="flex items-center justify-center h-16 bg-white rounded border">
+                      <p className="text-sm text-gray-500 italic">
+                        No items added yet
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </form>
+        </div>
+
+        <DialogFooter className="px-4 py-3 border-t">
+          <div className="flex justify-end space-x-2 w-full">
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Save Changes</Button>
-          </DialogFooter>
-        </form>
+            <Button type="button" onClick={handleSubmit(onSubmit)}>
+              Save Changes
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

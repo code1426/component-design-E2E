@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PlusCircle, Filter } from "lucide-react";
+import { PlusCircle, Filter, ClipboardList } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -59,7 +59,7 @@ const MidtermsPage = () => {
   return (
     <>
       <Toaster />
-      <div className="w-screen p-4 text-center h-screen">
+      <div className="w-screen px-5 py-3 text-center h-screen">
         <div className="max-w-7xl mx-auto">
           <header className="mb-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
@@ -111,13 +111,24 @@ const MidtermsPage = () => {
 
           {sortedTasks.length === 0 ? (
             <Card className="bg-white border-gray-200">
-              <CardContent className="flex flex-col items-center justify-center py-8">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <div className="rounded-full bg-blue-100 p-4 mb-4">
+                  <ClipboardList className="h-12 w-12 text-blue-500" />
+                </div>
+                <h3 className="text-xl font-medium text-gray-800 mb-2">
+                  You don't have any tasks yet
+                </h3>
+                <p className="text-gray-500 mb-6 max-w-md text-center">
+                  Create your first task to get started with organizing your
+                  work and tracking your progress.
+                </p>
                 <Button
                   onClick={() => setDialogOpen(true)}
-                  className="bg-blue-500 text-white"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md flex items-center gap-2"
+                  size="lg"
                 >
-                  <PlusCircle className="h-5 w-5 mr-2" />
-                  New Task
+                  <PlusCircle className="h-5 w-5" />
+                  Create Your First Task
                 </Button>
               </CardContent>
             </Card>
