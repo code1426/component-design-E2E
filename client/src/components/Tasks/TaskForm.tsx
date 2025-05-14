@@ -11,14 +11,31 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Clock, CheckSquare, Plus, X } from "lucide-react";
 import type { Task, ChecklistItem } from "@/types/task.type";
 
-// form schema
-const taskSchema = z.object({
-  title: z.string().min(1, "Title is required").max(50),
-  description: z.string().max(200).optional(),
-  date: z.string().optional(),
-  time: z.string().optional(),
-  type: z.enum(["basic", "timed", "checklist"]),
-});
+// form schema with conditional checks
+const taskSchema = z
+  .object({
+    title: z.string().min(1, "Title is required").max(50),
+    description: z.string().max(200).optional(),
+    date: z.string().optional(),
+    time: z.string().optional(),
+    type: z.enum(["basic", "timed", "checklist"]),
+  })
+  .superRefine((data, ctx) => {
+    if ((data.type === "timed" || data.type === "checklist") && !data.date) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Due date is required",
+        path: ["date"],
+      });
+    }
+    if ((data.type === "timed" || data.type === "checklist") && !data.time) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Due time is required",
+        path: ["time"],
+      });
+    }
+  });
 
 type TaskFormValues = z.infer<typeof taskSchema>;
 
@@ -40,6 +57,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
     formState: { errors },
   } = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
+    mode: "onBlur",
     defaultValues: {
       title: "",
       description: "",
@@ -142,40 +160,44 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
       <div className="space-y-4">
         <div>
           <Label className={errors.title ? "text-red-500" : ""}>Title</Label>
-          <Input
-            id="title"
-            {...register("title")}
-            className={errors.title ? "border-red-500" : ""}
-            placeholder="Task title"
-            maxLength={50}
-          />
+          <Input id="title" {...register("title")} placeholder="Task title" />
           {errors.title && (
             <p className="text-sm text-red-500">{errors.title.message}</p>
           )}
         </div>
         <div>
           <Label>Description</Label>
-          <Textarea {...register("description")} rows={3} maxLength={200} />
+          <Textarea {...register("description")} rows={3} />
         </div>
       </div>
 
       {showDateFields && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="dueDate">Due Date</Label>
+            <Label htmlFor="date" className={errors.date ? "text-red-500" : ""}>
+              Due Date
+            </Label>
             <input
               type="date"
               {...register("date")}
               className="w-full border p-2 rounded"
             />
+            {errors.date && (
+              <p className="text-sm text-red-500">{errors.date.message}</p>
+            )}
           </div>
           <div>
-            <Label htmlFor="dueTime">Due Time</Label>
+            <Label htmlFor="time" className={errors.time ? "text-red-500" : ""}>
+              Due Time
+            </Label>
             <input
               type="time"
               {...register("time")}
               className="w-full border p-2 rounded"
             />
+            {errors.time && (
+              <p className="text-sm text-red-500">{errors.time.message}</p>
+            )}
           </div>
         </div>
       )}
@@ -196,7 +218,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
               onChange={(e) => setNewChecklistItem(e.target.value)}
               onKeyDown={handleKeyDown}
               className="h-8 text-sm"
-              maxLength={50}
             />
             <Button
               type="button"
@@ -216,17 +237,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, onCancel }) => {
                     key={idx}
                     className="flex items-center justify-between bg-white p-2 rounded border text-sm"
                   >
-                    <span
-                      className="truncate flex-1 max-w-[calc(100%-2rem)]"
-                      id={text}
-                    >
+                    <span className="truncate flex-1 max-w-[calc(100%-2rem)]">
                       • {text}
                     </span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => removeItem(idx)}
-                      className="h-6 w-6 p-0 text-gray-400 hover:text-red-500 flex-shrink-0"
+                      className="h-6 w-6 p-0"
                     >
                       <X className="h-3 w-3" />
                     </Button>
