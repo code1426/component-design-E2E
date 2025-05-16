@@ -19,6 +19,26 @@ Welcome to the **Component Design Project**! This project is a full-stack applic
 - [License](#license)
 
 ---
+# Cypress E2E Testing
+
+## 1. Install dependencies
+
+```bash
+npm install
+```
+
+## 2. Start your app
+
+```bash
+npm run start
+```
+
+## 3. Open Cypress
+
+```bash
+npx cypress open
+```
+
 
 ## Project Overview
 
