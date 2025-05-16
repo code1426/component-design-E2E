@@ -84,4 +84,16 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.delete("/", async (req, res) => {
+  try {
+    await prisma.task.deleteMany();
+    res.status(200).json({ message: "All tasks deleted" });
+  } catch (error) {
+    console.error("Error deleting tasks:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the tasks." });
+  }
+});
+
 export default router;
